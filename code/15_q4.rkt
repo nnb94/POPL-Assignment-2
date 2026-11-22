@@ -35,3 +35,26 @@
     (if (null? l)
         (my-reverse acc)
         (loop (cdr l) (cons (f (car l)) acc)))))
+
+;; (list-value? e) -> #t when e is a list: () or a pair. Atoms are everything
+;; else (numbers and symbols); symbol? and number? are not allowed, so an
+;; atom is recognised as "neither a pair nor ()". There are no dotted pairs.
+(define (list-value? e)
+  (or (null? e) (pair? e)))
+
+;; (insert-if-short x lst n) -> lst with x inserted at the front of every
+;; list (lst itself included, at every level of nesting) whose length is < n.
+;; Reading: first rebuild every element of lst (sublists recursively, atoms
+;; unchanged) with my-map; then, if the ORIGINAL lst has fewer than n
+;; top-level elements, cons x in front of the rebuilt list.
+;; The length is taken on lst before anything is inserted, and () is not
+;; special: it has length 0, so it becomes (x) whenever 0 < n.
+(define (insert-if-short x lst n)
+  (let ((rebuilt (my-map (lambda (e)
+                           (if (list-value? e)
+                               (insert-if-short x e n)
+                               e))
+                         lst)))
+    (if (< (my-length lst) n)
+        (cons x rebuilt)
+        rebuilt)))
