@@ -1,5 +1,7 @@
 % CS F301 Assignment 2 - P1: Department Assignment Puzzle, Reloaded
 :- use_module(library(lists)).
+:- use_module(library(apply)).
+:- use_module(library(aggregate)).
 
 %% depts(-Ds), langs(-Ls), projects(-Ps)
 %  The four values of each attribute, exactly as given in the spec.
@@ -78,6 +80,11 @@ clue(8, S) :-
     Dept == research,
     Lang \== javascript.
 
+% CLUE 9: The friend whose favorite language is Python prefers the AI project.
+clue(9, S) :-
+    member(p(_, _, python, Proj), S),
+    Proj == 'AI'.
+
 %% solves(+Active, -S)
 %  S is a candidate solution in which every clue numbered in Active holds.
 %  Declarative reading: S solves Active if S is a candidate and no clue
@@ -99,3 +106,12 @@ print_friend(p(Name, Dept, Lang, Proj)) :-
 main :-
     once(solves([1,2,3,4,5,6,7,8], S)),
     maplist(print_friend, S).
+
+%% count_solutions(+Active, -N)
+%  N is the number of candidate solutions in which exactly the clues
+%  listed in Active hold; clues not in Active are ignored.
+%  Declarative reading: N counts the S with solves(Active, S).
+%  aggregate_all(count, ...) counts every proof, and each candidate S
+%  is produced once by solution/1, so each solution is counted once.
+count_solutions(Active, N) :-
+    aggregate_all(count, solves(Active, _), N).
