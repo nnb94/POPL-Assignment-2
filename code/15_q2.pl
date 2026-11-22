@@ -108,3 +108,24 @@ needs_parens(T, ParentP, right) :-
     \+ integer(T),
     T =.. [Op, _, _], prec(Op, P),
     P =< ParentP.
+
+%% generate_equation(+List, ?Equation)
+%  Equation is a valid equation over List, as a canonical string "L=R".
+%  Declarative reading: List is split into a non-empty left part and a
+%  non-empty right part (in order), each part is turned into an expression
+%  tree that evaluates (with exact division) to an integer, and the two
+%  values are equal.
+%  On backtracking it enumerates every valid equation once. It is not
+%  wrapped in once/1, so a call with Equation already bound checks it
+%  against all equations. It fails (no loop, no error) when none exists,
+%  including for lists of length 0 or 1, because split/3 then fails.
+generate_equation(List, Equation) :-
+    split(List, LeftNums, RightNums),
+    expr(LeftNums, L),
+    eval(L, V),
+    expr(RightNums, R),
+    eval(R, V),
+    to_string(L, LS),
+    to_string(R, RS),
+    string_concat(LS, "=", S0),
+    string_concat(S0, RS, Equation).
