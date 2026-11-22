@@ -58,3 +58,53 @@ eval(L / R, V) :-
     B =\= 0,
     A mod B =:= 0,
     V is A // B.
+
+%% prec(?Op, ?P)
+%  Precedence of each operator: * and / bind tighter than + and -.
+prec(+, 1).
+prec(-, 1).
+prec(*, 2).
+prec(/, 2).
+
+%% to_string(+Tree, -String)
+%  String is the canonical text of Tree (an SWI-Prolog string, no spaces).
+%  Declarative reading: a number is written in decimal; Op(L, R) is the
+%  text of L, then Op, then the text of R, where
+%    - L is wrapped in parentheses only if its top operator has LOWER
+%      precedence than Op (operators are left-associative), and
+%    - R is wrapped if its top operator has the SAME OR LOWER precedence.
+%  A number is never wrapped. So every distinct tree gets a distinct string,
+%  e.g. 1+2+3 is (1+2)+3 while 1+(2+3) keeps its parentheses.
+to_string(N, S) :-
+    integer(N),
+    number_string(N, S).
+to_string(Tree, S) :-
+    Tree =.. [Op, L, R],
+    prec(Op, P),
+    operand_string(L, P, left, LS),
+    operand_string(R, P, right, RS),
+    atomic_list_concat([LS, Op, RS], A),
+    atom_string(A, S).
+
+%% operand_string(+Tree, +ParentPrec, +Side, -String)
+%  String is the text of Tree as an operand on Side (left or right) of an
+%  operator with precedence ParentPrec, with parentheses added by the rule.
+operand_string(T, ParentP, Side, S) :-
+    to_string(T, S0),
+    (   needs_parens(T, ParentP, Side)
+    ->  string_concat("(", S0, S1),
+        string_concat(S1, ")", S)
+    ;   S = S0
+    ).
+
+%% needs_parens(+Tree, +ParentPrec, +Side)
+%  True when Tree must be parenthesised as a Side operand of a parent with
+%  precedence ParentPrec. Numbers never need parentheses.
+needs_parens(T, ParentP, left) :-
+    \+ integer(T),
+    T =.. [Op, _, _], prec(Op, P),
+    P < ParentP.
+needs_parens(T, ParentP, right) :-
+    \+ integer(T),
+    T =.. [Op, _, _], prec(Op, P),
+    P =< ParentP.
