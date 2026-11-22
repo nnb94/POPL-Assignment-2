@@ -50,3 +50,52 @@ clue(4, S) :-
     member(p('Ben', Dept, _, Proj), S),
     Proj == web,
     Dept \== testing.
+
+% CLUE 5: The friend whose favorite language is Java works in the
+% design department.
+clue(5, S) :-
+    member(p(_, Dept, java, _), S),
+    Dept == design.
+
+% CLUE 6: Carla's project preference is not embedded, and her
+% department is not development.
+clue(6, S) :-
+    member(p('Carla', Dept, _, Proj), S),
+    Proj \== embedded,
+    Dept \== development.
+
+% CLUE 7: Dana's favorite language is not Java, and she works in
+% research or testing.
+clue(7, S) :-
+    member(p('Dana', Dept, Lang, _), S),
+    Lang \== java,
+    ( Dept == research ; Dept == testing ).
+
+% CLUE 8: The friend who prefers data projects works in research and
+% does not use JavaScript.
+clue(8, S) :-
+    member(p(_, Dept, Lang, data), S),
+    Dept == research,
+    Lang \== javascript.
+
+%% solves(+Active, -S)
+%  S is a candidate solution in which every clue numbered in Active holds.
+%  Declarative reading: S solves Active if S is a candidate and no clue
+%  in Active fails for S.
+solves(Active, S) :-
+    solution(S),
+    forall(member(N, Active), clue(N, S)).
+
+%% print_friend(+P)
+%  Prints one friend as   Name = [Dept, Lang, Project]   on its own line.
+%  ~w writes atoms without quotes, so 'c++' prints as c++ and 'AI' as AI.
+print_friend(p(Name, Dept, Lang, Proj)) :-
+    format("~w = [~w, ~w, ~w]~n", [Name, Dept, Lang, Proj]).
+
+%% main
+%  Finds the first solution satisfying clues 1 to 8 (derived from the
+%  clues, not hard-coded) and prints it as four lines, Alex to Dana.
+%  once/1 commits to that first solution so main leaves no choice point.
+main :-
+    once(solves([1,2,3,4,5,6,7,8], S)),
+    maplist(print_friend, S).
