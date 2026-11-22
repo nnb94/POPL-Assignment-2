@@ -129,3 +129,20 @@ generate_equation(List, Equation) :-
     to_string(R, RS),
     string_concat(LS, "=", S0),
     string_concat(S0, RS, Equation).
+
+%% all_equations(+List, -Equations)
+%  Equations is the list of all valid equations over List, as strings,
+%  without duplicates and sorted by sort/2 (standard order of terms).
+%  Declarative reading: Equations is the sorted set of every E with
+%  generate_equation(List, E). It is [] when there is none (findall/3
+%  never fails), including for lists of length 0 or 1.
+all_equations(List, Equations) :-
+    findall(E, generate_equation(List, E), Es),
+    sort(Es, Equations).
+
+%% count_equations(+List, -N)
+%  N is the number of distinct valid equations over List, i.e. the length
+%  of the list given by all_equations/2.
+count_equations(List, N) :-
+    all_equations(List, Es),
+    length(Es, N).
