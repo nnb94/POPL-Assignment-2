@@ -42,22 +42,35 @@
 (define (list-value? e)
   (or (null? e) (pair? e)))
 
+;; S2.c (make-inserter x len-ok?) -> a function of one list that inserts x
+;; at the front of every list (the argument itself included, at every level
+;; of nesting) whose length satisfies len-ok?.
+;; Reading: to insert into lst, first rebuild every element of lst
+;; (sublists recursively, atoms unchanged) with my-map; then, if
+;; (len-ok? (my-length lst)) holds for the ORIGINAL lst, cons x in front of
+;; the rebuilt list. The length is taken before anything is inserted, and
+;; () is not special: it has length 0.
+;; letrec names the returned function insert so it can call itself on the
+;; sublists; x and len-ok? are captured by the closure, not passed again.
+(define (make-inserter x len-ok?)
+  (letrec ((insert
+            (lambda (lst)
+              (let ((rebuilt (my-map (lambda (e)
+                                       (if (list-value? e)
+                                           (insert e)
+                                           e))
+                                     lst)))
+                (if (len-ok? (my-length lst))
+                    (cons x rebuilt)
+                    rebuilt)))))
+    insert))
+
 ;; (insert-if-short x lst n) -> lst with x inserted at the front of every
 ;; list (lst itself included, at every level of nesting) whose length is < n.
-;; Reading: first rebuild every element of lst (sublists recursively, atoms
-;; unchanged) with my-map; then, if the ORIGINAL lst has fewer than n
-;; top-level elements, cons x in front of the rebuilt list.
-;; The length is taken on lst before anything is inserted, and () is not
-;; special: it has length 0, so it becomes (x) whenever 0 < n.
+;; Reading: it is the inserter for x whose length test is "length < n",
+;; applied to lst. So () becomes (x) whenever 0 < n.
 (define (insert-if-short x lst n)
-  (let ((rebuilt (my-map (lambda (e)
-                           (if (list-value? e)
-                               (insert-if-short x e n)
-                               e))
-                         lst)))
-    (if (< (my-length lst) n)
-        (cons x rebuilt)
-        rebuilt)))
+  ((make-inserter x (lambda (len) (< len n))) lst))
 
 ;; S2.a (print-insert-result): reads x, then lst, then n from standard input
 ;; with read, and prints (insert-if-short x lst n) followed by a newline.
