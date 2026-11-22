@@ -29,9 +29,9 @@ How the count narrows as clues are added (from `count_solutions/2`):
 ## What N = 3 tells us about the puzzle
 
 - **The original puzzle is under-determined.** Clues 1–8 are consistent (N > 0), but they do not have a unique answer, so "the" solution cannot be derived from them. `main/0` (P1.a) therefore prints just the first solution Prolog finds (solution A), which is a valid answer but not the only one.
-- **Some facts are fixed anyway.** Ben is development / javascript / web in all three solutions. The friend in testing always uses Python, the Java user is always in design and the data project always goes with research and C++. These follow from clues 3, 5 and 8.
+- **Some facts are fixed anyway.** Ben is development / javascript / web in all three solutions. The friend in testing always uses Python, the Java user is always in design and the data project always goes with research and C++. Clues 3, 5 and 8 give the first two links and research for data directly; C++ for data is not stated by any single clue but is forced once the clues are combined.
 - **What stays open is who gets which combination** for Alex, Carla and Dana.
-- **Solutions A and C cannot be told apart without names.** In both, the three non-Ben friends hold exactly the same three combinations: design+java+AI, research+c+++data and testing+python+embedded. The only difference is which person holds which. Any clue that refers to friends only through attribute values (as P1.c requires) is either true in both A and C or false in both. So the only solution a name-free ninth clue can keep is **B**, the one where Python goes with AI instead of embedded.
+- **Solutions A and C cannot be told apart without names.** In both, the three non-Ben friends hold exactly the same three combinations: (design, java, AI), (research, c++, data) and (testing, python, embedded). The only difference is which person holds which. Any clue that refers to friends only through attribute values (as P1.c requires) is either true in both A and C or false in both. So the only solution a name-free ninth clue can keep is **B**, the one where Python goes with AI instead of embedded.
 
 ## P1.c: the repair
 

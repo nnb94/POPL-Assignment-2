@@ -8,14 +8,17 @@ description: Conventions, allowed built-ins, run/test commands, self-review chec
 ## Language and environment
 - Racket 8.x, every file starts with `#lang racket/base`.
 - **Only these built-ins** may appear: `define`, `lambda`, `let`, `let*`, `letrec`, named `let`, `if`, `cond` (with `else`), `and`, `or`, `not`, `begin`, `quote` / `'`, `cons`, `car`, `cdr`, `list`, c[ad]{1,4}r compositions, `null?`, `pair?`, `eq?`, `assq`, `assoc`, `+ - * < > <= >= =`, `max`, `display`, `newline`. S2 additionally allows `read`.
-- **Forbidden**: `set!` and relatives, vectors, hash tables, strings, `do`/`for` loops, `length`, `append`, `reverse`, `map`, `filter`, `member`, `memq`, `list-ref`, `list-tail`, `apply`, `foldl`, `when`, `unless`, `else`-less `cond`, `number?`, `symbol?`, `list?`, `error`, `printf`. Write helpers instead (`my-reverse`, `my-append`, `my-length`, `my-map`).
+- **Forbidden**: `set!` and relatives, vectors, hash tables, strings, `do`/`for` loops, `length`, `append`, `reverse`, `map`, `filter`, `member`, `memq`, `list-ref`, `list-tail`, `apply`, `foldl`, `when`, `unless`, `case`, `number?`, `symbol?`, `list?`, `error`, `printf`. Write helpers instead (`my-reverse`, `my-append`, `my-length`, `my-map`).
 
 ## How code is run
 ```
-racket code/id_q3.rkt          ; grader appends its own calls
-echo "42 ((1 2) (3 4 5) (6) ()) 3" | racket -e '(require (file "code/id_q4.rkt"))' ...
+racket code/15_q3.rkt          ; grader appends its own calls; loading alone prints nothing
+# grader-style check of S2: append the call, feed x lst n on stdin
+(cat code/15_q4.rkt; echo "(print-insert-result)") > /tmp/t.rkt
+echo "42 ((1 2) (3 4 5) (6) ()) 3" | racket /tmp/t.rkt
 ```
-For testing, keep tests in `tests/test_q3.rkt` / `tests/test_q4.rkt`, which `(require "../code/id_q3.rkt")` (add a `(provide ...)` only if needed and allowed — otherwise tests copy the call lines after the file contents: `cat code/id_q3.rkt tests/calls_q3.rkt > /tmp/t.rkt && racket /tmp/t.rkt`). Compare stdout to expected output with `diff`.
+(Group 15, so the spec's `id_q3.rkt` is `15_q3.rkt`.)
+Tests live in `tests/test_q3.rkt` / `tests/test_q4.rkt` and run with `racket tests/test_q3.rkt` and `racket tests/test_q4.rkt`. The solution files have no `provide` (only definitions are allowed), so the tests `dynamic-require` the file and evaluate calls inside its module namespace (`module->namespace`), the same way the grader's appended calls see the definitions. A passing run prints only the final `test_qN: done` line.
 
 ## Coding conventions
 - Names in `kebab-case`; predicates end in `?`; helpers prefixed `my-` when replacing a forbidden built-in.
@@ -50,7 +53,7 @@ For testing, keep tests in `tests/test_q3.rkt` / `tests/test_q4.rkt`, which `(re
 
 ## Known AI failure modes in Scheme/Racket
 - Reaching for `append`, `map`, `length`, `reverse`, `filter`, `foldl` out of habit.
-- Using `when`/`unless`, `printf`, `format`, `list?`, `symbol?`, `number?`, `else` in `if` — all outside the allowed set.
+- Using `when`/`unless`, `printf`, `format`, `list?`, `symbol?`, `number?`, `case`, `length` — all outside the allowed set.
 - Using `define` inside a body in ways that rely on `racket` (not `racket/base`) features; or writing `#lang racket` instead of `#lang racket/base`.
 - Measuring length after insertion in S2 (off-by-one on boundary cases like length `n-1`).
 - Treating `()` as an atom, or skipping insertion into empty lists.

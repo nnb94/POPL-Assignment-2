@@ -13,13 +13,15 @@ description: Conventions, run/test commands, self-review checklist and known AI 
 
 ## How code is run
 ```
-swipl -q -f code/id_q1.pl -g main -t halt
-swipl -q -f code/id_q1.pl -g "count_solutions([1,2,3,4,5,6,7,8],N), print(N), nl" -t halt
-swipl -q -f code/id_q2.pl -g "all_equations([4,2,5,3],Es), print(Es), nl" -t halt
+swipl -q -f code/15_q1.pl -g main -t halt
+swipl -q -f code/15_q1.pl -g "count_solutions([1,2,3,4,5,6,7,8],N), print(N), nl" -t halt
+swipl -q -f code/15_q2.pl -g "all_equations([4,2,5,3],Es), print(Es), nl" -t halt
 ```
-Tests live in `tests/` (e.g. `tests/test_q1.pl`) and use `plunit`-free plain goals or `library(plunit)` only inside the test file, never in `code/`. Run them with:
+(Group 15, so the spec's `id_q1.pl` is `15_q1.pl`.)
+Tests live in `tests/` (e.g. `tests/test_q1.pl`) and use `plunit`-free plain goals or `library(plunit)` only inside the test file, never in `code/`. Each test file loads its solution with `ensure_loaded('../code/15_qN')`. Run them from the repo root with:
 ```
-swipl -q -f code/id_q1.pl -g "consult('tests/test_q1.pl'), run_tests" -t halt
+swipl -q -g run_tests -t halt tests/test_q1.pl
+swipl -q -g run_tests -t halt tests/test_q2.pl
 ```
 
 ## Coding conventions
