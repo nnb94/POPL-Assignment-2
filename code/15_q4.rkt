@@ -58,3 +58,14 @@
     (if (< (my-length lst) n)
         (cons x rebuilt)
         rebuilt)))
+
+;; S2.a (print-insert-result): reads x, then lst, then n from standard input
+;; with read, and prints (insert-if-short x lst n) followed by a newline.
+;; let* evaluates its bindings in order, so the three reads happen in the
+;; order the spec gives. No prompt or other text is printed.
+(define (print-insert-result)
+  (let* ((x (read))
+         (lst (read))
+         (n (read)))
+    (display (insert-if-short x lst n))
+    (newline)))
