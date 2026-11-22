@@ -39,3 +39,22 @@ expr(Nums, Tree) :-
     expr(RightNums, Right),
     op(Op),
     Tree =.. [Op, Left, Right].
+
+%% eval(+Tree, -Value)
+%  Value is the integer value of the expression tree Tree.
+%  Declarative reading: a number evaluates to itself; Op(L, R) evaluates
+%  to the result of applying Op to the values of L and R.
+%  Division is allowed only when it is exact: the divisor is not zero and
+%  leaves no remainder. This is checked at every / node, so eval fails
+%  (it never raises an error and never produces a float) for trees like
+%  1/2 or 3/(2-2). Values of sub-expressions may be negative.
+eval(N, N) :-
+    integer(N).
+eval(L + R, V) :- eval(L, A), eval(R, B), V is A + B.
+eval(L - R, V) :- eval(L, A), eval(R, B), V is A - B.
+eval(L * R, V) :- eval(L, A), eval(R, B), V is A * B.
+eval(L / R, V) :-
+    eval(L, A), eval(R, B),
+    B =\= 0,
+    A mod B =:= 0,
+    V is A // B.
